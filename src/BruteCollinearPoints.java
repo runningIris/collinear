@@ -37,7 +37,6 @@ public class BruteCollinearPoints {
                         collinearPoints.add(r);
                         collinearPoints.add(s);
 
-                        // Collections.sort(collinearPoints);
                         Point max = Collections.max(collinearPoints);
                         Point min = Collections.min(collinearPoints);
 
@@ -64,33 +63,20 @@ public class BruteCollinearPoints {
         int len = StdIn.readInt();
         Point[] points = new Point[len];
 
-        int i = -1;
-        int x = 0;
-        int y;
-
-        while(!StdIn.isEmpty()) {
-            if (i % 2 == 0) {
-                y = StdIn.readInt();
-                points[i / 2] = new Point(x, y);
-            } else {
-                x = StdIn.readInt();
-            }
-            i++;
+        for (int i = 0; i < len; i++) {
+            int x = StdIn.readInt();
+            int y = StdIn.readInt();
+            points[i] = new Point(x, y);
         }
 
-
-        StdDraw.setPenColor(StdDraw.BLACK);
         StdDraw.setPenRadius(0.001);
         StdDraw.setXscale(0, 40000);
         StdDraw.setYscale(0, 40000);
-        StdDraw.line(100000, 0, -10000, 0);
-        StdDraw.line(0, 100000, 0, -10000);
         StdDraw.setPenColor(StdDraw.BLUE);
-        BruteCollinearPoints bcp = new BruteCollinearPoints(points);
 
+        BruteCollinearPoints bcp = new BruteCollinearPoints(points);
         LineSegment[] ls = bcp.segments();
         int num = bcp.numberOfSegments();
-
         for (int j = 0; j < num; j++) {
             ls[j].draw();
         }
