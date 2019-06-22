@@ -1,13 +1,18 @@
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class BruteCollinearPoints {
+    private List<LineSegment> collinearLineSegments = new ArrayList<LineSegment>();
+
+    private int lineNum = 0;
 
     public BruteCollinearPoints(Point[] points) {
         int pl = points.length;
-        Point origin = new Point(0, 0);
+
         for (int i = 0; i < pl - 3; i++) {
             Point p = points[i];
             for (int j = i + 1; j < pl - 2; j++) {
@@ -20,30 +25,40 @@ public class BruteCollinearPoints {
                         break;
                     }
                     for (int l = k + 1; l < pl; l++) {
-                        // System.out.println("(" + i + ", " + j + ", " + k + ", " + l + ')');
                         Point s = points[l];
                         double ps = p.slopeTo(s);
                         if (pq != ps) {
                             break;
                         }
-                        Point[] arr = new Point[]{p, q, r, s};
-                        Arrays.sort(arr, origin.slopeOrder());
-                        StdOut.println(arr[0].toString() + " -> " + arr[3].toString());
-                        StdDraw.setPenColor(StdDraw.RED);
-                        StdDraw.setPenRadius(0.01);
-                        StdDraw.setXscale(0, 50000);
-                        StdDraw.setYscale(0, 50000);
-                        new LineSegment(arr[0], arr[3]).draw();
+
+                        List<Point> collinearPoints = new ArrayList<Point>(4);
+                        collinearPoints.add(p);
+                        collinearPoints.add(q);
+                        collinearPoints.add(r);
+                        collinearPoints.add(s);
+
+                        // Collections.sort(collinearPoints);
+                        Point max = Collections.max(collinearPoints);
+                        Point min = Collections.min(collinearPoints);
+
+                        collinearLineSegments.add(new LineSegment(max, min));
+                        lineNum++;
                     }
                 }
             }
         }
     }
+
     public int numberOfSegments() {
-        return 1;
+        return lineNum;
     }
+
     public LineSegment[] segments() {
-        return null;
+        LineSegment[] s = new LineSegment[lineNum];
+        for(int i = 0; i < lineNum; i++) {
+            s[i] = collinearLineSegments.get(i);
+        }
+        return s;
     }
     public static void main(String[] args) {
         int len = StdIn.readInt();
@@ -51,18 +66,35 @@ public class BruteCollinearPoints {
 
         int i = -1;
         int x = 0;
-        int y = 0;
+        int y;
 
         while(!StdIn.isEmpty()) {
-            i++;
             if (i % 2 == 0) {
                 y = StdIn.readInt();
                 points[i / 2] = new Point(x, y);
             } else {
                 x = StdIn.readInt();
             }
+            i++;
         }
 
-        new BruteCollinearPoints(points);
+
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setPenRadius(0.001);
+        StdDraw.setXscale(0, 40000);
+        StdDraw.setYscale(0, 40000);
+        StdDraw.line(100000, 0, -10000, 0);
+        StdDraw.line(0, 100000, 0, -10000);
+        StdDraw.setPenColor(StdDraw.BLUE);
+        BruteCollinearPoints bcp = new BruteCollinearPoints(points);
+
+        LineSegment[] ls = bcp.segments();
+        int num = bcp.numberOfSegments();
+
+        for (int j = 0; j < num; j++) {
+            ls[j].draw();
+        }
+
+        StdDraw.show();
     }
 }
