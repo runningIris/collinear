@@ -1,9 +1,9 @@
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.StdOut;
 
 public class FastCollinearPoints {
 
@@ -15,9 +15,7 @@ public class FastCollinearPoints {
             throw new java.lang.IllegalArgumentException("the constructor parameter \"points\" is null");
         }
 
-        for (int i = 0; i < points.length; i++) {
-            Point origin = points[i];
-
+        for (Point origin: points) {
             List<Point> subPoints = new ArrayList<Point>();
             List<Point> tmp = new ArrayList<Point>();
 
@@ -58,7 +56,6 @@ public class FastCollinearPoints {
                     }
                 }
 
-
                 if (current == prev) {
                     tmp.add(point);
                     count++;
@@ -83,7 +80,6 @@ public class FastCollinearPoints {
         return s;
     }
     public static void main(String[] args) {
-
         // read the n points from a file
         In in = new In(args[0]);
         int n = in.readInt();

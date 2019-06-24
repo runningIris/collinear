@@ -2,45 +2,54 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import edu.princeton.cs.algs4.StdOut;
-import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdDraw;
+import edu.princeton.cs.algs4.In;
 
 public class BruteCollinearPoints {
     private List<LineSegment> collinearLineSegments = new ArrayList<LineSegment>();
 
     private int lineNum = 0;
 
+    private boolean isEqual(double v1, double v2) {
+        return v1 == v2;
+    }
+
     public BruteCollinearPoints(Point[] points) {
         int pl = points.length;
 
         for (int i = 0; i < pl - 3; i++) {
             Point p = points[i];
+
             for (int j = i + 1; j < pl - 2; j++) {
                 Point q = points[j];
                 double pq = p.slopeTo(q);
+
                 for (int k = j + 1; k < pl - 1; k++) {
                     Point r = points[k];
                     double pr = p.slopeTo(r);
-                    if (pq != pr) {
-                        break;
+
+                    if (!isEqual(pq, pr)) {
+                        continue;
                     }
+
                     for (int l = k + 1; l < pl; l++) {
                         Point s = points[l];
                         double ps = p.slopeTo(s);
-                        if (pq != ps) {
-                            break;
+                        if (!isEqual(pq, ps)) {
+                            continue;
                         }
 
-                        List<Point> collinearPoints = new ArrayList<Point>(4);
+                        List<Point> collinearPoints = new ArrayList<Point>();
                         collinearPoints.add(p);
                         collinearPoints.add(q);
                         collinearPoints.add(r);
                         collinearPoints.add(s);
-
-                        Point max = Collections.max(collinearPoints);
-                        Point min = Collections.min(collinearPoints);
+                        Collections.sort(collinearPoints);
+                        Point min = collinearPoints.get(0);
+                        Point max = collinearPoints.get(3);
 
                         collinearLineSegments.add(new LineSegment(max, min));
+
                         lineNum++;
                     }
                 }
@@ -60,27 +69,33 @@ public class BruteCollinearPoints {
         return s;
     }
     public static void main(String[] args) {
-        int len = StdIn.readInt();
-        Point[] points = new Point[len];
 
-        for (int i = 0; i < len; i++) {
-            int x = StdIn.readInt();
-            int y = StdIn.readInt();
+        // read the n points from a file
+        In in = new In(args[0]);
+        int n = in.readInt();
+        Point[] points = new Point[n];
+        for (int i = 0; i < n; i++) {
+            int x = in.readInt();
+            int y = in.readInt();
             points[i] = new Point(x, y);
         }
 
+        // draw the points
+        StdDraw.enableDoubleBuffering();
         StdDraw.setPenRadius(0.001);
-        StdDraw.setXscale(0, 40000);
-        StdDraw.setYscale(0, 40000);
-        StdDraw.setPenColor(StdDraw.BLUE);
-
-        BruteCollinearPoints bcp = new BruteCollinearPoints(points);
-        LineSegment[] ls = bcp.segments();
-        int num = bcp.numberOfSegments();
-        for (int j = 0; j < num; j++) {
-            ls[j].draw();
+        StdDraw.setXscale(0, 32768);
+        StdDraw.setYscale(0, 32768);
+        for (Point p : points) {
+            p.draw();
         }
+        StdDraw.show();
 
+        // print and draw the line segments
+        BruteCollinearPoints collinear = new BruteCollinearPoints(points);
+        for (LineSegment segment : collinear.segments()) {
+//            StdOut.println(segment);
+            segment.draw();
+        }
         StdDraw.show();
     }
 }
