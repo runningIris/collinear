@@ -1,10 +1,8 @@
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import edu.princeton.cs.algs4.StdIn;
 import edu.princeton.cs.algs4.StdOut;
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class FastCollinearPoints {
@@ -17,41 +15,55 @@ public class FastCollinearPoints {
             throw new java.lang.IllegalArgumentException("the constructor parameter \"points\" is null");
         }
 
-        List<Point> ps = new ArrayList<Point>();
+        for (int i = 0; i < points.length; i++) {
+            Point origin = points[i];
 
-        Point origin = new Point(0, 0);
+            List<Point> subPoints = new ArrayList<Point>();
+            List<Point> tmp = new ArrayList<Point>();
 
-        for(Point point: points) {
-            point.draw();
-            ps.add(point);
-        }
+            Collections.addAll(subPoints, points);
+            Collections.sort(subPoints, origin.slopeOrder());
 
-        Collections.sort(ps, origin.slopeOrder());
+            double prev = subPoints.get(0).slopeTo(origin);
+            int count = 1;
+            int subLength = points.length;
 
-        double prev = 0;
-        int count = 0;
+            for(int k = 0; k < subLength; k++) {
 
-        List<Point> tmp = new ArrayList<Point>();
+                Point point = subPoints.get(k);
+                double current = point.slopeTo(origin);
 
-        for(Point point: ps) {
-            double current = point.slopeTo(origin);
+                if (count > 1 && current == prev) {
+                    // 如果是最后一个，存起来 LineSegment
+                    if (k == subLength - 1) {
+                        tmp.add(origin);
+                        Collections.sort(tmp);
+                        LineSegment newLineSegment = new LineSegment(tmp.get(0), tmp.get(count));
+                        collinearLineSegments.add(newLineSegment);
+                        num++;
 
-            StdOut.println(current);
-            if (current == prev) {
+                        // 如果超过3个，说明符合条件，加入lineSegments
+                    } else {
 
-                tmp.add(point);
-                count++;
+                        // 存在 next 的情况，需要考虑 next == current 时不做任何操作，等遍历到下一个, 否则存起来当时的 LineSegment
+                        Point nextPoint = subPoints.get(k + 1);
+                        double next = nextPoint.slopeTo(origin);
+                        if (next != current) {
+                            tmp.add(origin);
+                            Collections.sort(tmp);
+                            LineSegment newLineSegment = new LineSegment(tmp.get(0), tmp.get(count));
+                            collinearLineSegments.add(newLineSegment);
+                            num++;
+                        }
+                    }
+                }
 
-            } else {
 
-                // 如果超过3个，说明符合条件，加入lineSegments
-                if (count > 3/* to be checked */) {
-                    LineSegment newLineSegment = new LineSegment(tmp.get(0), tmp.get(count - 1));
-                    StdOut.println(newLineSegment);
-                    collinearLineSegments.add(newLineSegment);
-                    num++;
+                if (current == prev) {
+                    tmp.add(point);
+                    count++;
                 } else {
-                    count = 0;
+                    count = 1;
                     prev = current;
                     tmp = new ArrayList<Point>();
                     tmp.add(point);
@@ -72,26 +84,32 @@ public class FastCollinearPoints {
     }
     public static void main(String[] args) {
 
-        StdDraw.setPenRadius(0.01);
-        StdDraw.setXscale(0, 40000);
-        StdDraw.setYscale(0, 40000);
-        StdDraw.setPenColor(StdDraw.BLUE);
-
-
-        int len = StdIn.readInt();
-        Point[] points = new Point[len];
-        for(int i = 0; i < len; i++) {
-            int x = StdIn.readInt();
-            int y = StdIn.readInt();
+        // read the n points from a file
+        In in = new In(args[0]);
+        int n = in.readInt();
+        Point[] points = new Point[n];
+        for (int i = 0; i < n; i++) {
+            int x = in.readInt();
+            int y = in.readInt();
             points[i] = new Point(x, y);
         }
-        FastCollinearPoints fcp = new FastCollinearPoints(points);
 
-        LineSegment[] segments = fcp.segments();
-
-        for(LineSegment ls: segments) {
-            ls.draw();
-            StdOut.println(ls.toString());
+        // draw the points
+        StdDraw.enableDoubleBuffering();
+        StdDraw.setPenRadius(0.001);
+        StdDraw.setXscale(0, 32768);
+        StdDraw.setYscale(0, 32768);
+        for (Point p : points) {
+            p.draw();
         }
+        StdDraw.show();
+
+        // print and draw the line segments
+        FastCollinearPoints collinear = new FastCollinearPoints(points);
+        for (LineSegment segment : collinear.segments()) {
+            StdOut.println(segment);
+            segment.draw();
+        }
+        StdDraw.show();
     }
 }
