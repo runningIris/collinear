@@ -15,6 +15,8 @@ public class FastCollinearPoints {
             throw new java.lang.IllegalArgumentException("the constructor parameter \"points\" is null");
         }
 
+        // Duplicate points to be handled
+        // x and y coordinates between 0 and 32767
         for (Point origin: points) {
             List<Point> subPoints = new ArrayList<Point>();
             List<Point> tmp = new ArrayList<Point>();

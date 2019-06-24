@@ -15,6 +15,13 @@ public class BruteCollinearPoints {
     }
 
     public BruteCollinearPoints(Point[] points) {
+
+        if (points == null) {
+            throw new IllegalArgumentException("The constructor argument \"points\" should not be null");
+        }
+
+        // Duplicate points to be handled
+
         int pl = points.length;
 
         for (int i = 0; i < pl - 3; i++) {
