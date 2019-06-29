@@ -9,6 +9,11 @@ public class Point implements Comparable<Point>{
     private final int y;
 
     public Point(int x, int y) {
+
+        if (x > 32767 || x < 0 || y > 32767 || y < 0) {
+            throw new java.lang.IllegalArgumentException("Point coordinate should be between 0 and 32767.");
+        }
+
         this.x = x;
         this.y = y;
     }

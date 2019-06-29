@@ -16,6 +16,16 @@ public class FastCollinearPoints {
         }
 
         // Duplicate points to be handled
+        List<Point> all = new ArrayList<Point>();
+
+        for (Point point: points) {
+            if (all.contains(point)) {
+                throw new java.lang.IllegalArgumentException("Duplicate points argument in constructor. ");
+            }
+
+            all.add(point);
+        }
+
         // x and y coordinates between 0 and 32767
         for (Point origin: points) {
             List<Point> subPoints = new ArrayList<Point>();

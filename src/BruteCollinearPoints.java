@@ -1,6 +1,5 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
 import edu.princeton.cs.algs4.StdOut;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.In;
@@ -17,10 +16,19 @@ public class BruteCollinearPoints {
     public BruteCollinearPoints(Point[] points) {
 
         if (points == null) {
-            throw new IllegalArgumentException("The constructor argument \"points\" should not be null");
+            throw new IllegalArgumentException("The constructor argument \"points\" should not be null. ");
         }
 
         // Duplicate points to be handled
+        List<Point> all = new ArrayList<Point>();
+
+        for (Point point: points) {
+            if (all.contains(point)) {
+                throw new java.lang.IllegalArgumentException("Duplicate points argument in constructor. ");
+            }
+
+            all.add(point);
+        }
 
         int pl = points.length;
 
