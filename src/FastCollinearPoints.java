@@ -7,24 +7,34 @@ import edu.princeton.cs.algs4.StdOut;
 
 public class FastCollinearPoints {
 
-    private List<LineSegment> collinearLineSegments = new ArrayList<LineSegment>();
-    private int num = 0;
+    private final List<LineSegment> collinearLineSegments;
+    private int num;
 
     public FastCollinearPoints(Point[] points) {
+
         if (points == null) {
             throw new java.lang.IllegalArgumentException("the constructor parameter \"points\" is null");
         }
 
         // Duplicate points to be handled
-        List<Point> all = new ArrayList<Point>();
+        List<String> all = new ArrayList<String>();
 
         for (Point point: points) {
-            if (all.contains(point)) {
+            if (point == null) {
+                throw new IllegalArgumentException("Every entry of points should not be null. ");
+            }
+
+            if (all.contains(point.toString())) {
                 throw new java.lang.IllegalArgumentException("Duplicate points argument in constructor. ");
             }
 
-            all.add(point);
+            all.add(point.toString());
         }
+
+        collinearLineSegments = new ArrayList<LineSegment>();
+        num = 0;
+
+        List<String> stringLineSegments = new ArrayList<String>();
 
         // x and y coordinates between 0 and 32767
         for (Point origin: points) {
@@ -38,7 +48,7 @@ public class FastCollinearPoints {
             int count = 1;
             int subLength = points.length;
 
-            for(int k = 0; k < subLength; k++) {
+            for (int k = 0; k < subLength; k++) {
 
                 Point point = subPoints.get(k);
                 double current = point.slopeTo(origin);
@@ -49,8 +59,12 @@ public class FastCollinearPoints {
                         tmp.add(origin);
                         Collections.sort(tmp);
                         LineSegment newLineSegment = new LineSegment(tmp.get(0), tmp.get(count));
-                        collinearLineSegments.add(newLineSegment);
-                        num++;
+
+                        if (!stringLineSegments.contains(newLineSegment.toString())) {
+                            stringLineSegments.add(newLineSegment.toString());
+                            collinearLineSegments.add(newLineSegment);
+                            num++;
+                        }
 
                         // 如果超过3个，说明符合条件，加入lineSegments
                     } else {
@@ -62,8 +76,12 @@ public class FastCollinearPoints {
                             tmp.add(origin);
                             Collections.sort(tmp);
                             LineSegment newLineSegment = new LineSegment(tmp.get(0), tmp.get(count));
-                            collinearLineSegments.add(newLineSegment);
-                            num++;
+
+                            if (!stringLineSegments.contains(newLineSegment.toString())) {
+                                stringLineSegments.add(newLineSegment.toString());
+                                collinearLineSegments.add(newLineSegment);
+                                num++;
+                            }
                         }
                     }
                 }
@@ -86,7 +104,7 @@ public class FastCollinearPoints {
     public LineSegment[] segments() {
         LineSegment[] s = new LineSegment[num];
 
-        for(int i = 0; i < num; i++) {
+        for (int i = 0; i < num; i++) {
             s[i] = collinearLineSegments.get(i);
         }
         return s;

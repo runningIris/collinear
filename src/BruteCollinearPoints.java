@@ -1,17 +1,14 @@
-import java.util.*;
-
-import edu.princeton.cs.algs4.StdOut;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdOut;
 
 public class BruteCollinearPoints {
-    private List<LineSegment> collinearLineSegments = new ArrayList<LineSegment>();
+    private final List<LineSegment> collinearLineSegments;
 
-    private int lineNum = 0;
-
-    private boolean isEqual(double v1, double v2) {
-        return v1 == v2;
-    }
+    private int lineNum;
 
     public BruteCollinearPoints(Point[] points) {
 
@@ -20,15 +17,23 @@ public class BruteCollinearPoints {
         }
 
         // Duplicate points to be handled
-        List<Point> all = new ArrayList<Point>();
+        List<String> all = new ArrayList<String>();
 
         for (Point point: points) {
-            if (all.contains(point)) {
+            // if the entry of array is null
+            if (point == null) {
+                throw new IllegalArgumentException("Every entry of points should not be null. ");
+            }
+
+            if (all.contains(point.toString())) {
                 throw new java.lang.IllegalArgumentException("Duplicate points argument in constructor. ");
             }
 
-            all.add(point);
+            all.add(point.toString());
         }
+
+        collinearLineSegments = new ArrayList<LineSegment>();
+        lineNum = 0;
 
         int pl = points.length;
 
@@ -72,19 +77,22 @@ public class BruteCollinearPoints {
         }
     }
 
+    private boolean isEqual(double v1, double v2) {
+        return v1 == v2;
+    }
+
     public int numberOfSegments() {
         return lineNum;
     }
 
     public LineSegment[] segments() {
         LineSegment[] s = new LineSegment[lineNum];
-        for(int i = 0; i < lineNum; i++) {
+        for (int i = 0; i < lineNum; i++) {
             s[i] = collinearLineSegments.get(i);
         }
         return s;
     }
     public static void main(String[] args) {
-
         // read the n points from a file
         In in = new In(args[0]);
         int n = in.readInt();
@@ -97,7 +105,6 @@ public class BruteCollinearPoints {
 
         // draw the points
         StdDraw.enableDoubleBuffering();
-        StdDraw.setPenRadius(0.001);
         StdDraw.setXscale(0, 32768);
         StdDraw.setYscale(0, 32768);
         for (Point p : points) {
@@ -106,9 +113,9 @@ public class BruteCollinearPoints {
         StdDraw.show();
 
         // print and draw the line segments
-        BruteCollinearPoints collinear = new BruteCollinearPoints(points);
+        FastCollinearPoints collinear = new FastCollinearPoints(points);
         for (LineSegment segment : collinear.segments()) {
-//            StdOut.println(segment);
+            StdOut.println(segment);
             segment.draw();
         }
         StdDraw.show();
