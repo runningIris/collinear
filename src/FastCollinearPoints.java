@@ -1,116 +1,131 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
 
+import java.util.Collections;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+
 public class FastCollinearPoints {
 
-    private final List<LineSegment> collinearLineSegments;
     private int num;
+    private List<LineSegment> segments;
+    private List<String> stringSegments;
 
     public FastCollinearPoints(Point[] points) {
 
+        // 参数不合法处理
+
         if (points == null) {
-            throw new java.lang.IllegalArgumentException("the constructor parameter \"points\" is null");
+            throw new IllegalArgumentException("The constructor argument points should not be null.");
         }
 
-        // Duplicate points to be handled
-        List<String> all = new ArrayList<String>();
-
-        for (Point point: points) {
-            if (point == null) {
-                throw new IllegalArgumentException("Every entry of points should not be null. ");
-            }
-
-            if (all.contains(point.toString())) {
-                throw new java.lang.IllegalArgumentException("Duplicate points argument in constructor. ");
-            }
-
-            all.add(point.toString());
+        if (points.length < 1) {
+            throw new IllegalArgumentException("The constructor argument points should not be an empty array.");
         }
 
-        collinearLineSegments = new ArrayList<LineSegment>();
+        List<String> stringPoints = new ArrayList<String>();
+
+        for (Point p: points) {
+            if (p == null) {
+                throw new IllegalArgumentException("Any entry in the array points should not be null.");
+            }
+
+            if (stringPoints.contains(p.toString())) {
+                throw new IllegalArgumentException("The constructor argument points have duplicated value.");
+            } else {
+                stringPoints.add(p.toString());
+            }
+        }
+
+
+        // 初始化数据
+
         num = 0;
+        segments = new ArrayList<LineSegment>();
+        stringSegments = new ArrayList<String>();
 
-        List<String> stringLineSegments = new ArrayList<String>();
+        // 遍历每个点，以其为原点，计算其他点的斜率
+        for (int j = 0; j < points.length; j++) {
 
-        // x and y coordinates between 0 and 32767
-        for (Point origin: points) {
-            List<Point> subPoints = new ArrayList<Point>();
+            // 定义原点和剩余点
+            Point origin = points[j];
+            Point[] restPoints = new Point[points.length - 1];
+
+            for (int k = 0; k < points.length; k++) {
+                if (j != k) {
+                    int index = k < j ? k : k - 1;
+                    restPoints[index] = points[k];
+                }
+            }
+
+            // 根据斜率来排序
+            Arrays.sort(restPoints, origin.slopeOrder());
+
+            // 计算剩余点到原点的斜率
+            double[] slopes = new double[restPoints.length];
+            for (int i = 0; i < restPoints.length; i++) {
+                slopes[i] = origin.slopeTo(restPoints[i]);
+            }
+
+
+            double currentSlope = slopes[0];
+
             List<Point> tmp = new ArrayList<Point>();
 
-            Collections.addAll(subPoints, points);
-            Collections.sort(subPoints, origin.slopeOrder());
+            for (int i = 0; i < restPoints.length; i++) {
 
-            double prev = subPoints.get(0).slopeTo(origin);
-            int count = 1;
-            int subLength = points.length;
+                if (currentSlope == slopes[i]) {
+                    tmp.add(restPoints[i]);
 
-            for (int k = 0; k < subLength; k++) {
-
-                Point point = subPoints.get(k);
-                double current = point.slopeTo(origin);
-
-                if (count > 1 && current == prev) {
-                    // 如果是最后一个，存起来 LineSegment
-                    if (k == subLength - 1) {
+                    // 最后一个的情况
+                    if (i == restPoints.length - 1 && tmp.size() > 2) {
                         tmp.add(origin);
-                        Collections.sort(tmp);
-                        LineSegment newLineSegment = new LineSegment(tmp.get(0), tmp.get(count));
-
-                        if (!stringLineSegments.contains(newLineSegment.toString())) {
-                            stringLineSegments.add(newLineSegment.toString());
-                            collinearLineSegments.add(newLineSegment);
-                            num++;
-                        }
-
-                        // 如果超过3个，说明符合条件，加入lineSegments
-                    } else {
-
-                        // 存在 next 的情况，需要考虑 next == current 时不做任何操作，等遍历到下一个, 否则存起来当时的 LineSegment
-                        Point nextPoint = subPoints.get(k + 1);
-                        double next = nextPoint.slopeTo(origin);
-                        if (next != current) {
-                            tmp.add(origin);
-                            Collections.sort(tmp);
-                            LineSegment newLineSegment = new LineSegment(tmp.get(0), tmp.get(count));
-
-                            if (!stringLineSegments.contains(newLineSegment.toString())) {
-                                stringLineSegments.add(newLineSegment.toString());
-                                collinearLineSegments.add(newLineSegment);
-                                num++;
-                            }
-                        }
+                        addLineSegment(tmp);
                     }
+
+                } else {
+
+                    if (tmp.size() > 2) {
+                        tmp.add(origin);
+                        addLineSegment(tmp);
+                    }
+
+                    tmp = new ArrayList<Point>();
+                    tmp.add(restPoints[i]);
                 }
 
-                if (current == prev) {
-                    tmp.add(point);
-                    count++;
-                } else {
-                    count = 1;
-                    prev = current;
-                    tmp = new ArrayList<Point>();
-                    tmp.add(point);
-                }
+                currentSlope = slopes[i];
             }
         }
+
     }
+
+    private void addLineSegment(List<Point> points) {
+        Collections.sort(points);
+        LineSegment ls = new LineSegment(points.get(0), points.get(points.size() - 1));
+
+        if (!stringSegments.contains(ls.toString())) {
+            segments.add(ls);
+            stringSegments.add(ls.toString());
+            num++;
+        }
+    }
+
+    public LineSegment[] segments() {
+        LineSegment[] all = new LineSegment[num];
+        for (int i = 0; i < num; i++) {
+            all[i] = segments.get(i);
+        }
+        return all;
+    }
+
     public int numberOfSegments() {
         return num;
     }
-    public LineSegment[] segments() {
-        LineSegment[] s = new LineSegment[num];
 
-        for (int i = 0; i < num; i++) {
-            s[i] = collinearLineSegments.get(i);
-        }
-        return s;
-    }
     public static void main(String[] args) {
-        // read the n points from a file
         In in = new In(args[0]);
         int n = in.readInt();
         Point[] points = new Point[n];
@@ -122,7 +137,6 @@ public class FastCollinearPoints {
 
         // draw the points
         StdDraw.enableDoubleBuffering();
-        StdDraw.setPenRadius(0.001);
         StdDraw.setXscale(0, 32768);
         StdDraw.setYscale(0, 32768);
         for (Point p : points) {

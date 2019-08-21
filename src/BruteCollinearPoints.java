@@ -1,6 +1,7 @@
+import java.util.Collections;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
+
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
@@ -13,23 +14,25 @@ public class BruteCollinearPoints {
     public BruteCollinearPoints(Point[] points) {
 
         if (points == null) {
-            throw new IllegalArgumentException("The constructor argument \"points\" should not be null. ");
+            throw new IllegalArgumentException("The constructor argument points should not be null.");
         }
 
-        // Duplicate points to be handled
-        List<String> all = new ArrayList<String>();
+        if (points.length < 1) {
+            throw new IllegalArgumentException("The constructor argument points should not be an empty array.");
+        }
 
-        for (Point point: points) {
-            // if the entry of array is null
-            if (point == null) {
-                throw new IllegalArgumentException("Every entry of points should not be null. ");
+        List<String> stringPoints = new ArrayList<String>();
+
+        for (Point p: points) {
+            if (p == null) {
+                throw new IllegalArgumentException("Any entry in the array points should not be null.");
             }
 
-            if (all.contains(point.toString())) {
-                throw new java.lang.IllegalArgumentException("Duplicate points argument in constructor. ");
+            if (stringPoints.contains(p.toString())) {
+                throw new IllegalArgumentException("The constructor argument points have duplicated value.");
+            } else {
+                stringPoints.add(p.toString());
             }
-
-            all.add(point.toString());
         }
 
         collinearLineSegments = new ArrayList<LineSegment>();
